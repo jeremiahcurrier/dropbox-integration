@@ -1,14 +1,10 @@
-# App name
+# Dropbox-Zendesk Integration
 
-[brief description of the app]
+This app sends attachments from Zendesk tickets to Dropbox
 
-### The following information is displayed:
-
-* info1
-* info2
-* info3
-
-Please submit bug reports to [Insert Link](). Pull requests are welcome.
+* The app currently is not firing the *.done event upon completion of POST to https://api.dropbox.com/1/oauth2/token
+ * Once that's fixed I will be able to extract my OAuth 2.0 Bearer Token to start making the REST API calls from Zendesk to Dropbox
 
 ### Screenshot(s):
-[put your screenshots down here.]
+
+![](http://g.recordit.co/9gCXYoOQcC.gif)
