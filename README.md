@@ -11,4 +11,10 @@ This app sends attachments from Zendesk tickets to Dropbox
 
 ### Screenshot(s):
 
-![](http://g.recordit.co/pcJi9xQ9Mz.gif)
+##### Authorization Code Exchange for Bearer Token (Success)
+
+![](http://g.recordit.co/KseOKoUwmN.gif)
+
+##### Authorization Code Exchange for Bearer Token (Failure)
+
+![](http://g.recordit.co/J39vR4nN1z.gif)
