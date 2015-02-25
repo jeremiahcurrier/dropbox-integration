@@ -3,9 +3,3 @@
   <h3>{{setting "name"}}</h3>
 </header>
 <section data-main/>
-<div><a class="btn getCode">Get CODE</a></div>
-<!--<div><a class="btn getToken">Get OAuth 2.0 BEARER TOKEN</a></div>-->
-<br>
-<div class="input-group">    
-  <input type="text" class="form-control" id='inputValueId' placeholder="Enter Code From Pop Up Here"/>
-</div>

@@ -1,8 +1,31 @@
+p {
+  word-wrap: break-word;
+}
+
 .btn {
   width: 300px;
 }
 
 .form-control {
-  border-radius: 5px;
+  border-radius: 4px;
   width: 310px;
+  margin: 12px 0 -4px 0;
+}
+
+/*http://stackoverflow.com/questions/7381446/center-html-input-text-field-placeholder*/
+
+::-webkit-input-placeholder {
+   text-align: center;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   text-align: center;  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   text-align: center;  
+}
+
+:-ms-input-placeholder {  
+   text-align: center; 
 }
