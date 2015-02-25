@@ -11,6 +11,14 @@ This app sends attachments from Zendesk tickets to Dropbox
 
 ### Screenshot(s):
 
+##### Adding Attachments to a New Ticket
+
+![](http://g.recordit.co/E3yeOdNfJW.gif)
+
+##### Adding Attachments to an Existing Ticket
+
+![](http://g.recordit.co/GoWwho7s2j.gif)
+
 ##### Authorization Code Exchange for Bearer Token (Success)
 
 ![](http://g.recordit.co/KseOKoUwmN.gif)

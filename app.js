@@ -1,6 +1,6 @@
 (function (window) {
 
-    var attachments = [];
+    var attachmentsArray = [];
 
     return {
 
@@ -26,6 +26,8 @@
         events: {
             //LIFECYCLE events//
             'app.created': 'init',
+            'comment.attachments.changed': 'init',
+            'ticket.submit.always': 'init',
             //DOM events//
             'click .upload': 'lookForBearerToken',
             'click .getCode': function(event){
@@ -46,7 +48,69 @@
         /////////////////
 
         init: function() {
-            this.switchTo('sendFiles');
+            this.switchTo('loading');
+            var attachmentsArray = [];
+            var ticket = this.ticket();
+
+            // Attachments - CURRENT COMMENT
+            var comment                     = this.comment(),
+                currentCommentAttachments   = comment.attachments();
+
+            if (currentCommentAttachments.length > 0) {
+                for (var i = 0; currentCommentAttachments.length > i; i++) {
+                    if (currentCommentAttachments[i].contentType() === 'application/pdf') {
+                        console.log('PDF - ATTACHMENT');
+                        attachmentsArray.push(currentCommentAttachments[i].contentUrl());
+                    }
+                }
+            } else {
+                console.log('No attachments on current comment');
+            }
+
+            // Attachments - ALL COMMENTS EXCEPT CURRENT COMMENT
+            ticket.comments().forEach(function(comment) {
+                var firstImageAttachment    = comment.imageAttachments().get(0),
+                    firstNonImageAttachment = comment.nonImageAttachments()[0];
+
+                    if (firstImageAttachment !== undefined ) {
+                        console.log(firstImageAttachment);
+                        if (firstImageAttachment.contentType() === 'application/pdf') {
+                            console.log('PDF - ATTACHMENT');
+                            attachmentsArray.push(firstImageAttachment.contentUrl());
+                        }
+                    } else {
+                        console.log('no image attachments for comment id: ' + comment.id());
+                    }
+
+                    if (firstNonImageAttachment !== undefined ) {
+                        console.log(firstNonImageAttachment);
+                        if (firstNonImageAttachment.contentType() === 'application/pdf') {
+                            console.log('PDF - ATTACHMENT');
+                            attachmentsArray.push(firstNonImageAttachment.contentUrl());
+                        }
+                    } else {
+                        console.log('no non-image attachments for comment id: ' + comment.id());
+                    }
+            });
+
+            console.log('***************************************      - \'attachmentsArray\' below -      ******************************************');
+            console.log(attachmentsArray);
+            console.log('*********************************************************************************');
+            console.log('This ticket has ' + attachmentsArray.length + ' PDF attachments');
+
+            if (attachmentsArray.length === 0) {
+                this.switchTo('noAttachments', {
+                    PDFcount: attachmentsArray.length
+                });
+            } else {
+                this.switchTo('sendFiles', {
+                    PDFcount: attachmentsArray.length
+                });
+            }
+
+            this.attachmentsArray = attachmentsArray;
+            this.attachmentsArraySize = attachmentsArray.length;
+
         },
 
         lookForBearerToken: function () {
@@ -86,17 +150,16 @@
           this.ajax('getBearerToken', code);
           
           // Line of code below removes the code from the input field after you have clicked 'Enter' on the keyboard
-          var code = this.$('input#inputValueId').val('');
+          code = this.$('input#inputValueId').val('');
           this.switchTo('loading');
         },
 
         displayBearerToken: function(data) {
             console.log('Dropbox OAuth 2.0 Bearer Token: ' + data.access_token);
             services.notify('You have been signed in to Dropbox!', 'notice');
-            this.switchTo('sendFiles');
-            // this.switchTo('sendFiles', {
-            //     bearer_token: data.access_token
-            // });
+            this.switchTo('sendFiles', {
+                PDFcount: this.attachmentsArraySize
+            });
         },
 
         displayBearerTokenFail: function(data) {
