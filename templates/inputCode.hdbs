@@ -1,4 +1,3 @@
-<div><a class="btn getCode">Get Authorization Code</a></div>
 <div class="input-group">    
   <input type="text" class="form-control" id='inputValueId' placeholder="Enter Authorization Code Here"/>
 </div>

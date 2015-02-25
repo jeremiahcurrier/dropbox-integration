@@ -4,12 +4,17 @@ p {
 
 .btn {
   width: 300px;
+  font-size: 14px;
+  padding: 6px;
+  margin: 0 0 -6px 0;
 }
 
 .form-control {
   border-radius: 4px;
   width: 310px;
-  margin: 12px 0 -4px 0;
+  margin: 0 0 -6px 0;
+  font-size: 14px;
+  padding: 6px;
 }
 
 /*http://stackoverflow.com/questions/7381446/center-html-input-text-field-placeholder*/

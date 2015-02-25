@@ -1,3 +1,1 @@
-<!--<p>Your OAuth 2.0 Bearer Token is <strong>{{bearer_token}}</strong></p>-->
-<a class="btn">Upload Ticket Attachments to Dropbox</a>
-<br>
+<a class="btn upload">Send All Attachments to Dropbox</a>
