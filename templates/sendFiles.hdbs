@@ -1,3 +1,3 @@
-<p><strong>{{PDFcount}}</strong> PDF(s) attached on this ticket including the current comment</p>
+<p><strong>{{PDFcount}}</strong> PDF(s) attached to this ticket</p>
 <br>
 <a class="btn upload">Send All Attachments to Dropbox</a>

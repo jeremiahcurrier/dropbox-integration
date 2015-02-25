@@ -13,8 +13,23 @@
                 return {
                     url: 'https://api.dropbox.com/1/oauth2/token?code=' + code + '&grant_type=authorization_code&client_id=wlaohmc8nkj7og4&client_secret=as7blmehog1jtdz',
                     dataType: 'json',
-                    type: 'POST',
-                    proxy_v2: true
+                    type: 'POST'
+                };
+            },
+
+            sendFilesToDropbox: function (bearer_token) {
+
+                console.log(bearer_token);
+
+                return {
+                    // url: 'https://api-content.dropbox.com/1/files_put/auto/<path>?param=val',
+                    url: 'http://requestb.in/138vlx91',
+                    dataType: 'json',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    headers: {
+                        "Authorization": ' Bearer ' + bearer_token
+                    }
                 };
             }
         },
@@ -38,9 +53,12 @@
               if(event.keyCode === 13)
                 return this.processInputValue();
             },
+            'click .start_over': 'init',
             //AJAX events//
-            'getBearerToken.done': 'displayBearerToken',
-            'getBearerToken.fail': 'displayBearerTokenFail'
+            // 'getBearerToken.done': 'getBearerTokenSuccess',
+            // 'getBearerToken.fail': 'getBearerTokenFail',
+            'sendFilesToDropbox.always': 'filesSentSuccess' // Switch this to '.done' in the future
+            // 'sendFilesToDropbox.fail': 'filesSentFail'
         },
 
         /////////////////
@@ -59,12 +77,12 @@
             if (currentCommentAttachments.length > 0) {
                 for (var i = 0; currentCommentAttachments.length > i; i++) {
                     if (currentCommentAttachments[i].contentType() === 'application/pdf') {
-                        console.log('PDF - ATTACHMENT');
+                        // console.log('PDF - ATTACHMENT');
                         attachmentsArray.push(currentCommentAttachments[i].contentUrl());
                     }
                 }
             } else {
-                console.log('No attachments on current comment');
+                // console.log('No attachments on current comment');
             }
 
             // Attachments - ALL COMMENTS EXCEPT CURRENT COMMENT
@@ -73,30 +91,25 @@
                     firstNonImageAttachment = comment.nonImageAttachments()[0];
 
                     if (firstImageAttachment !== undefined ) {
-                        console.log(firstImageAttachment);
+                        // console.log(firstImageAttachment);
                         if (firstImageAttachment.contentType() === 'application/pdf') {
-                            console.log('PDF - ATTACHMENT');
+                            // console.log('PDF - ATTACHMENT');
                             attachmentsArray.push(firstImageAttachment.contentUrl());
                         }
                     } else {
-                        console.log('no image attachments for comment id: ' + comment.id());
+                        // console.log('no image attachments for comment id: ' + comment.id());
                     }
 
                     if (firstNonImageAttachment !== undefined ) {
-                        console.log(firstNonImageAttachment);
+                        // console.log(firstNonImageAttachment);
                         if (firstNonImageAttachment.contentType() === 'application/pdf') {
-                            console.log('PDF - ATTACHMENT');
+                            // console.log('PDF - ATTACHMENT');
                             attachmentsArray.push(firstNonImageAttachment.contentUrl());
                         }
                     } else {
-                        console.log('no non-image attachments for comment id: ' + comment.id());
+                        // console.log('no non-image attachments for comment id: ' + comment.id());
                     }
             });
-
-            console.log('***************************************      - \'attachmentsArray\' below -      ******************************************');
-            console.log(attachmentsArray);
-            console.log('*********************************************************************************');
-            console.log('This ticket has ' + attachmentsArray.length + ' PDF attachments');
 
             if (attachmentsArray.length === 0) {
                 this.switchTo('noAttachments', {
@@ -117,23 +130,42 @@
 
             this.switchTo('loading');
             // Check localStorage for Bearer Token
-
-            if (1 > 0) { // You don't have a Bearer Token yet
-                services.notify('You\'ll need to sign in to Dropbox first to send the attachments', 'alert');
+// ****************** FIGURE OUT HOW TO KEEP BEARER TOKEN IN LOCALSTORAGE ************
+            if (1 > 0) { 
+                // Code below if you don't yet have a bearer_token
+                services.notify('Please sign in to continue', 'alert');
                 this.switchTo('login');
-            } else { // You have the Bearer Token - so now you need to get the attachments on the ticket
-                this.getAllCurrentTicketAttachments();
+            } else {
+                // Code below only if there is a bearer_token
+                // var bearer_token = this.token;
+                // this.ajax('sendFilesToDropbox', bearer_token);
+                // console.log('token:');
+                // console.log(token);
+                // console.log('sending request to Dropbox');
+                console.log('you must already have an active oauth bearer_token');
+                console.log('******lookForBearerToken****  this.attachmentsArraySize:');
+                console.log(this.attachmentsArraySize);
+                this.switchTo('filesSentSuccess', {
+                    PDFcount: this.attachmentsArraySize
+                });
             }
 
         },
 
-        getAllCurrentTicketAttachments: function() {
-            // Once this function gets all the ticket attachments then send request to Dropbox to upload files
-            alert('function does nothing right now');
-            // code to get attachments
-            // store attachments
-            // Make request to Dropbox - pass Bearer Token in to request
+        filesSentSuccess: function(data) {
+            services.notify('PDF(s) sent to Dropbox!', 'notice');
+            this.switchTo('filesSentSuccess', {
+                PDFcount: this.attachmentsArraySize
+            });
         },
+
+        // filesSentFail: function(data) {
+        //     console.log(data);
+        //     this.switchTo('filesSentFail');
+        //     console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
+        //     console.log('Request to send files to Dropbox failed - that\'s all we know');
+        //     console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
+        // },
 
         createLoginPopup: function () {
             return window.open( 
@@ -147,27 +179,32 @@
         // Send request to Dropbox for the Bearer Token
         processInputValue: function() {
           var code = this.$('input#inputValueId').val();
-          this.ajax('getBearerToken', code);
+          this.switchTo('loading');
+          
+          this.ajax('getBearerToken', code)
+            .done(function(data){
+                services.notify('You have been signed in to Dropbox!', 'notice');
+                this.switchTo('sendFiles', {
+                    PDFcount: this.attachmentsArraySize
+                });
+                
+                this.token = data.access_token; // Bind 'Bearer Token' to app root
+                var bearer_token = this.token;
+                
+                this.ajax('sendFilesToDropbox', bearer_token);
+                
+                this.switchTo('loading');
+            })
+            .fail(function(data){
+                this.switchTo('authFail');
+                services.notify('Problem signing in to Dropbox', 'error');
+                console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
+                console.log('OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
+                console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
+            });
           
           // Line of code below removes the code from the input field after you have clicked 'Enter' on the keyboard
           code = this.$('input#inputValueId').val('');
-          this.switchTo('loading');
-        },
-
-        displayBearerToken: function(data) {
-            console.log('Dropbox OAuth 2.0 Bearer Token: ' + data.access_token);
-            services.notify('You have been signed in to Dropbox!', 'notice');
-            this.switchTo('sendFiles', {
-                PDFcount: this.attachmentsArraySize
-            });
-        },
-
-        displayBearerTokenFail: function(data) {
-            this.switchTo('authFail');
-            services.notify('Problem signing in to Dropbox', 'error');
-            console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
-            console.log('OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
-            console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
         }
 
     };
