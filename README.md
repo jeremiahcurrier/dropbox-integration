@@ -5,9 +5,10 @@ This app sends attachments from Zendesk tickets to Dropbox
 ### To Do
 
 * Get all attachments **DONE**
-* Store all attachments in localStorage 
 * Store Bearer Token in localStorage **DONE**
-* Make an API call to Dropbox using the Bearer Token **DONE**
+* Make an API call to Dropbox using the Bearer Token to create a test file **DONE**
+* Make an API call to Dropbox using the Bearer Token to upload one of the ticket attachments
+* Store all attachments in localStorage (Not clear yet if this is worth doing)
 
 ### Screenshot(s):
 
