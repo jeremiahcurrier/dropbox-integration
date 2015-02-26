@@ -17,17 +17,18 @@
                 };
             },
 
-            createTestFileInDropbox: function(bearer_token) {
+            createTestFileInDropbox: function(bearer_token, firstAttachmentInAttachmentsArray) {
                 return {
-                    url: 'https://api-content.dropbox.com/1/files_put/auto/hello.txt?overwrite=false',
-                    // url: 'http://requestb.in/138vlx91',
+                    url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/attachments.txt?overwrite=false',
+                    // https://api-content.dropbox.com/1/files_put/auto/<path>/<to>/<file>
+                    // url: 'http://requestb.in/sxa0ndsx',
                     dataType: 'json',
                     type: 'PUT',
                     contentType: 'text/plain',
                     headers: {
                         "Authorization": 'Bearer ' + bearer_token
                     },
-                    data: 'Hello, Zendesk 2!'
+                    data: firstAttachmentInAttachmentsArray
                 };
             }
         },
@@ -123,6 +124,11 @@
             this.attachmentsArray = attachmentsArray;
             this.attachmentsArraySize = attachmentsArray.length;
 
+            console.log('this.attachmentsArray:');
+            console.log(this.attachmentsArray);
+            console.log('this.attachmentsArraySize:');
+            console.log(this.attachmentsArraySize);
+
         },
 
         lookForBearerToken: function () {
@@ -135,9 +141,23 @@
             } else { // There is a Bearer Token already in localStorage - so send test attachments immediately
                 var bearer_token        = this.store('OAuth Bearer Token'), // Get Bearer token from localStorage
                     attachmentsArray    = this.attachmentsArray; // Get attachmentsArray from this
-
                 services.notify('Sending files to Dropbox, just a moment', 'notice');
-                this.ajax('createTestFileInDropbox', bearer_token); // API call to create test file in Dropbox
+
+
+
+
+                // console.log('attachmentsArray:');
+                // console.log(attachmentsArray);
+                console.log('attachmentsArray:');
+                console.log(attachmentsArray);
+                var firstAttachmentInAttachmentsArray = attachmentsArray[0];
+
+// *****   GET ATTACHMENTS IN THERE    *********************************************
+                this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
+
+
+
+
             }
         },
 
@@ -163,7 +183,24 @@
                     var bearer_token = this.token;
                     this.store('OAuth Bearer Token', bearer_token); // Store Bearer token in localStorage
                     services.notify('Sending files to Dropbox, just a moment', 'notice');
-                    this.ajax('createTestFileInDropbox', bearer_token); // API call to create test file in Dropbox
+
+
+
+
+
+                // console.log('attachmentsArray:');
+                // console.log(attachmentsArray);
+                console.log('attachmentsArray:');
+                console.log(attachmentsArray);
+                var firstAttachmentInAttachmentsArray = attachmentsArray[0];
+
+// *****   GET ATTACHMENTS IN THERE    *********************************************
+                this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
+
+
+
+
+
                 })
                 .fail(function(data){ // Failed to get Bearer token from Dropbox
                     this.switchTo('authFail');
