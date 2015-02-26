@@ -10,24 +10,24 @@ This app sends attachments from Zendesk tickets to Dropbox
 * Make an API call to Dropbox using the Bearer Token to upload one of the ticket attachments
 * Store all attachments in localStorage (Not clear yet if this is worth doing)
 
-### Screenshot(s):
+### Demo
 
-##### Adding Attachments to a New Ticket
+##### 1. Adding Attachments to a New Ticket
 
 ![](http://g.recordit.co/E3yeOdNfJW.gif)
 
-##### Adding Attachments to an Existing Ticket
+##### 2. Adding Attachments to an Existing Ticket
 
 ![](http://g.recordit.co/GoWwho7s2j.gif)
 
-##### Sending files to Dropbox (Sign in to Dropbox required)
+##### 3. Sending files to Dropbox (Sign in to Dropbox required)
 
-**When no Bearer Token present in localStorage**
+* **When no Bearer Token present in localStorage**
 
 ![](http://g.recordit.co/syLhoKSPTH.gif)
 
-##### Sending files to Dropbox (Currently signed in to Dropbox)
+##### 4. Sending files to Dropbox (Currently signed in to Dropbox)
 
-**Bearer Token is present in localStorage**
+* **Bearer Token is present in localStorage**
 
 ![](http://g.recordit.co/F0gMWcq0p5.gif)
