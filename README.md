@@ -26,3 +26,11 @@ This app sends attachments from Zendesk tickets to Dropbox
 ##### Authorization Code Exchange for Bearer Token (Failure)
 
 ![](http://g.recordit.co/J39vR4nN1z.gif)
+
+##### Bearer Token stored in localStorage
+
+![](http://g.recordit.co/zfiSvjrYVM.gif)
+
+##### Successfully creates a test text file in Dropbox
+
+![](http://g.recordit.co/ZUW55CeCNd.gif)

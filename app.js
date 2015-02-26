@@ -17,19 +17,16 @@
                 };
             },
 
-            sendFilesToDropbox: function (bearer_token) {
-
-                console.log(bearer_token);
-
+            createTestFileInDropbox: function(bearer_token) {
                 return {
-                    // url: 'https://api-content.dropbox.com/1/files_put/auto/<path>?param=val',
-                    url: 'http://requestb.in/138vlx91',
-                    dataType: 'json',
+                    url: 'https://api-content.dropbox.com/1/files_put/auto/hello.txt?overwrite=false',
+                    // url: 'http://requestb.in/138vlx91',
                     type: 'PUT',
-                    contentType: 'application/json',
+                    contentType: 'text/plain',
                     headers: {
-                        "Authorization": ' Bearer ' + bearer_token
-                    }
+                        "Authorization": 'Bearer ' + bearer_token
+                    },
+                    data: 'Hello, Zendesk 2!'
                 };
             }
         },
@@ -129,22 +126,30 @@
         lookForBearerToken: function () {
 
             this.switchTo('loading');
-            // Check localStorage for Bearer Token
-// ****************** FIGURE OUT HOW TO KEEP BEARER TOKEN IN LOCALSTORAGE ************
-            if (1 > 0) { 
+
+            if (this.store('OAuth Bearer Token') === null) { // A value has NOT been set for the Bearer Token
                 // Code below if you don't yet have a bearer_token
-                services.notify('Please sign in to continue', 'alert');
+                services.notify('Please sign in to continue', 'error');
                 this.switchTo('login');
-            } else {
-                // Code below only if there is a bearer_token
-                // var bearer_token = this.token;
+            } else { // A value HAS been set for Bearer Token available in localStorage
+                var bearer_token = this.store('OAuth Bearer Token');
+
+                // Probably need to send a single file at a time? 
+
+
+
                 // this.ajax('sendFilesToDropbox', bearer_token);
-                // console.log('token:');
-                // console.log(token);
-                // console.log('sending request to Dropbox');
-                console.log('you must already have an active oauth bearer_token');
-                console.log('******lookForBearerToken****  this.attachmentsArraySize:');
-                console.log(this.attachmentsArraySize);
+                this.ajax('createTestFileInDropbox', bearer_token);
+
+
+
+                // Print Attachments array and OAuth Bearer Token for testing purposes
+                var attachmentsArray = this.attachmentsArray;
+                console.log('************************** attachmentsArray: *****************');
+                console.log(attachmentsArray);
+                console.log('bearer_token:');
+                console.log(bearer_token);
+                
                 this.switchTo('filesSentSuccess', {
                     PDFcount: this.attachmentsArraySize
                 });
@@ -159,7 +164,7 @@
             });
         },
 
-        // filesSentFail: function(data) {
+        // filesSentFail: function(data) { // For some reason the .fail event always fires - commenting this out for now
         //     console.log(data);
         //     this.switchTo('filesSentFail');
         //     console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
@@ -170,13 +175,14 @@
         createLoginPopup: function () {
             return window.open( 
                 // [SECURITY VULNERABILITY] Future version will include 'state' parameter to mitigate CSRF risks
+                // Also - per Dropbox's docs using a 'redirect_uri' is optional
                 'https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=wlaohmc8nkj7og4',
                 'Login Popup',
                 'width=650,height=480,left=400,top=100'
             );
         },
 
-        // Send request to Dropbox for the Bearer Token
+        // Get Bearer Token from Dropbox
         processInputValue: function() {
           var code = this.$('input#inputValueId').val();
           this.switchTo('loading');
@@ -190,9 +196,22 @@
                 
                 this.token = data.access_token; // Bind 'Bearer Token' to app root
                 var bearer_token = this.token;
+
+                // Set 'OAuth Bearer Token' key to store Bearer Token in localStorage
+                  // EXAMPLES
+                  // this.store('key') // getter
+                  // this.store('key', dataObject) // setter
+                var OAuthBearerToken = bearer_token;
                 
-                this.ajax('sendFilesToDropbox', bearer_token);
+                this.store('OAuth Bearer Token', OAuthBearerToken); // Storing the 
                 
+
+
+                // this.ajax('sendFilesToDropbox', OAuthBearerToken);
+                this.ajax('createTestFileInDropbox', OAuthBearerToken);
+                
+
+
                 this.switchTo('loading');
             })
             .fail(function(data){
