@@ -19,18 +19,14 @@ This app sends attachments from Zendesk tickets to Dropbox
 
 ![](http://g.recordit.co/GoWwho7s2j.gif)
 
-##### Authorization Code Exchange for Bearer Token (Success)
+##### Sending files to Dropbox (Sign in to Dropbox required)
 
-![](http://g.recordit.co/KseOKoUwmN.gif)
+**When no Bearer Token present in localStorage**
 
-##### Authorization Code Exchange for Bearer Token (Failure)
+![](http://g.recordit.co/syLhoKSPTH.gif)
 
-![](http://g.recordit.co/J39vR4nN1z.gif)
+##### Sending files to Dropbox (Currently signed in to Dropbox)
 
-##### Bearer Token stored in localStorage
+**Bearer Token is present in localStorage**
 
-![](http://g.recordit.co/zfiSvjrYVM.gif)
-
-##### Successfully creates a test text file in Dropbox
-
-![](http://g.recordit.co/ZUW55CeCNd.gif)
+![](http://g.recordit.co/F0gMWcq0p5.gif)

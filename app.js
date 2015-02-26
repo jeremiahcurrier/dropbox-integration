@@ -21,6 +21,7 @@
                 return {
                     url: 'https://api-content.dropbox.com/1/files_put/auto/hello.txt?overwrite=false',
                     // url: 'http://requestb.in/138vlx91',
+                    dataType: 'json',
                     type: 'PUT',
                     contentType: 'text/plain',
                     headers: {
@@ -52,10 +53,11 @@
             },
             'click .start_over': 'init',
             //AJAX events//
-            // 'getBearerToken.done': 'getBearerTokenSuccess',
-            // 'getBearerToken.fail': 'getBearerTokenFail',
-            'sendFilesToDropbox.always': 'filesSentSuccess' // Switch this to '.done' in the future
+            // 'sendFilesToDropbox.always': 'filesSentSuccess' // Switch this to '.done' in the future
             // 'sendFilesToDropbox.fail': 'filesSentFail'
+            'createTestFileInDropbox.done': 'createTestFileInDropboxDone',
+            'createTestFileInDropbox.fail': 'createTestFileInDropboxFail'
+            // 'createTestFileInDropbox.always': 'createTestFileInDropboxAlways'
         },
 
         /////////////////
@@ -124,106 +126,74 @@
         },
 
         lookForBearerToken: function () {
-
             this.switchTo('loading');
-
             if (this.store('OAuth Bearer Token') === null) { // A value has NOT been set for the Bearer Token
-                // Code below if you don't yet have a bearer_token
-                services.notify('Please sign in to continue', 'error');
-                this.switchTo('login');
-            } else { // A value HAS been set for Bearer Token available in localStorage
-                var bearer_token = this.store('OAuth Bearer Token');
+                // this.switchTo('loading');
+                services.notify('Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue', 'alert', 3500);
+                this.switchTo('inputCode');
+                this.createLoginPopup(); // Display popup to click allow & copy paste auth code to input field
+            } else { // There is a Bearer Token already in localStorage - so send test attachments immediately
+                var bearer_token        = this.store('OAuth Bearer Token'), // Get Bearer token from localStorage
+                    attachmentsArray    = this.attachmentsArray; // Get attachmentsArray from this
 
-                // Probably need to send a single file at a time? 
-
-
-
-                // this.ajax('sendFilesToDropbox', bearer_token);
-                this.ajax('createTestFileInDropbox', bearer_token);
-
-
-
-                // Print Attachments array and OAuth Bearer Token for testing purposes
-                var attachmentsArray = this.attachmentsArray;
-                console.log('************************** attachmentsArray: *****************');
-                console.log(attachmentsArray);
-                console.log('bearer_token:');
-                console.log(bearer_token);
-                
-                this.switchTo('filesSentSuccess', {
-                    PDFcount: this.attachmentsArraySize
-                });
+                services.notify('Sending files to Dropbox, just a moment', 'notice');
+                this.ajax('createTestFileInDropbox', bearer_token); // API call to create test file in Dropbox
             }
-
         },
-
-        filesSentSuccess: function(data) {
-            services.notify('PDF(s) sent to Dropbox!', 'notice');
-            this.switchTo('filesSentSuccess', {
-                PDFcount: this.attachmentsArraySize
-            });
-        },
-
-        // filesSentFail: function(data) { // For some reason the .fail event always fires - commenting this out for now
-        //     console.log(data);
-        //     this.switchTo('filesSentFail');
-        //     console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
-        //     console.log('Request to send files to Dropbox failed - that\'s all we know');
-        //     console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
-        // },
 
         createLoginPopup: function () {
             return window.open( 
-                // [SECURITY VULNERABILITY] Future version will include 'state' parameter to mitigate CSRF risks
-                // Also - per Dropbox's docs using a 'redirect_uri' is optional
-                'https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=wlaohmc8nkj7og4',
+                // 'redirect_uri' optional according to Dropbox's OAuth 2 documentation
+                'https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=wlaohmc8nkj7og4', // Add 'state' parameter
                 'Login Popup',
                 'width=650,height=480,left=400,top=100'
             );
         },
 
-        // Get Bearer Token from Dropbox
         processInputValue: function() {
-          var code = this.$('input#inputValueId').val();
-          this.switchTo('loading');
+          var code = this.$('input#inputValueId').val(); // Variable set to value entered into input field
+          this.switchTo('loading'); // Switch to loading page
+          services.notify('Signing in to Dropbox, please wait', 'notice');
           
-          this.ajax('getBearerToken', code)
-            .done(function(data){
-                services.notify('You have been signed in to Dropbox!', 'notice');
-                this.switchTo('sendFiles', {
-                    PDFcount: this.attachmentsArraySize
+              this.ajax('getBearerToken', code) // API Call to Dropbox to get the Bearer Token
+                .done(function(data){
+                    this.switchTo('loading');
+                    services.notify('Signed in to Dropbox', 'notice');
+                    this.token = data.access_token; // Set 'Bearer Token' to this
+                    var bearer_token = this.token;
+                    this.store('OAuth Bearer Token', bearer_token); // Store Bearer token in localStorage
+                    services.notify('Sending files to Dropbox, just a moment', 'notice');
+                    this.ajax('createTestFileInDropbox', bearer_token); // API call to create test file in Dropbox
+                })
+                .fail(function(data){ // Failed to get Bearer token from Dropbox
+                    this.switchTo('authFail');
+                    services.notify('Problem signing in to Dropbox', 'error');
+                        // Debugging logs
+                        console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
+                        console.log('OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
+                        console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
                 });
-                
-                this.token = data.access_token; // Bind 'Bearer Token' to app root
-                var bearer_token = this.token;
+          code = this.$('input#inputValueId').val(''); // Empties input field 
+        },
 
-                // Set 'OAuth Bearer Token' key to store Bearer Token in localStorage
-                  // EXAMPLES
-                  // this.store('key') // getter
-                  // this.store('key', dataObject) // setter
-                var OAuthBearerToken = bearer_token;
-                
-                this.store('OAuth Bearer Token', OAuthBearerToken); // Storing the 
-                
-
-
-                // this.ajax('sendFilesToDropbox', OAuthBearerToken);
-                this.ajax('createTestFileInDropbox', OAuthBearerToken);
-                
-
-
-                this.switchTo('loading');
-            })
-            .fail(function(data){
-                this.switchTo('authFail');
-                services.notify('Problem signing in to Dropbox', 'error');
-                console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
-                console.log('OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
-                console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
+        createTestFileInDropboxDone: function() {
+            // Handle response from Dropbox [*.done]
+            services.notify('Files sent to Dropbox successfully', 'notice');
+            this.switchTo('filesSentSuccess', {
+                PDFcount: this.attachmentsArraySize
             });
-          
-          // Line of code below removes the code from the input field after you have clicked 'Enter' on the keyboard
-          code = this.$('input#inputValueId').val('');
+        },
+
+        createTestFileInDropboxFail: function(data) {
+            // Handle response from Dropbox [*.fail]
+            services.notify('Failed sending files to Dropbox, please try again', 'error');
+            this.switchTo('filesSentFail', {
+                PDFcount: this.attachmentsArraySize
+            });
+                // Debugging logs
+                console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
+                console.log('Request to send files to Dropbox failed - that\'s all we know');
+                console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
         }
 
     };
