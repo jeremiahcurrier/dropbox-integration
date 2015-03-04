@@ -1,3 +1,9 @@
+/*global Blob*/
+/*global URL*/
+/*global File*/
+/*global FileReader*/
+/*global XMLHttpRequest*/
+/*global FormData*/
 (function (window) {
 
     var attachmentsArray = [];
@@ -17,18 +23,51 @@
                 };
             },
 
-            createTestFileInDropbox: function(bearer_token, firstAttachmentInAttachmentsArray) {
+            // createTestFileInDropbox: function(bearer_token, firstAttachmentInAttachmentsArray) {
+            //     return {
+            //         url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/attachments.txt?overwrite=false',
+            //         // https://api-content.dropbox.com/1/files_put/auto/<path>/<to>/<file>
+            //         // url: 'http://requestb.in/sxa0ndsx',
+            //         dataType: 'json',
+            //         type: 'PUT',
+            //         contentType: 'text/plain',
+            //         headers: {
+            //             "Authorization": 'Bearer ' + bearer_token
+            //         },
+            //         data: firstAttachmentInAttachmentsArray
+            //     };
+            // },
+
+            // uploadFile: function (data, fileName) { // SEND REQUEST TO UPLOAD 1 PDF TO DROPBOX
+            //     var bearer_token = '{redacted}';
+            //     return {
+            //       url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/' + fileName + '?overwrite=false',
+            //       accepts: 'text/plain; charset=iso-8859-1',
+            //       headers: {
+            //         "Authorization": 'Bearer ' + bearer_token,
+            //         "Content-Type": "text/plain; charset=iso-8859-1"
+            //       },
+            //       type: 'PUT',
+            //       data: data,
+            //       processData: false,
+            //       contentType: false
+            //     };
+            // },
+
+            getOneAttachmentsContentURL: function(firstAttachmentInAttachmentsArray) {
                 return {
-                    url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/attachments.txt?overwrite=false',
-                    // https://api-content.dropbox.com/1/files_put/auto/<path>/<to>/<file>
-                    // url: 'http://requestb.in/sxa0ndsx',
+                    url: firstAttachmentInAttachmentsArray,
+                    dataType: 'json',
+                    type: 'GET'
+                };
+            },
+
+            sendGETResponseToRequestbin: function(test2) {
+                return {
+                    url: 'http://requestb.in/1apf8pt1',
                     dataType: 'json',
                     type: 'PUT',
-                    contentType: 'text/plain',
-                    headers: {
-                        "Authorization": 'Bearer ' + bearer_token
-                    },
-                    data: firstAttachmentInAttachmentsArray
+                    data: test2
                 };
             }
         },
@@ -56,9 +95,16 @@
             //AJAX events//
             // 'sendFilesToDropbox.always': 'filesSentSuccess' // Switch this to '.done' in the future
             // 'sendFilesToDropbox.fail': 'filesSentFail'
-            'createTestFileInDropbox.done': 'createTestFileInDropboxDone',
-            'createTestFileInDropbox.fail': 'createTestFileInDropboxFail'
+
+            // 'createTestFileInDropbox.done': 'createTestFileInDropboxDone',
+            // 'createTestFileInDropbox.fail': 'createTestFileInDropboxFail'
+
             // 'createTestFileInDropbox.always': 'createTestFileInDropboxAlways'
+            'getOneAttachmentsContentURL.done': 'getOneAttachmentsContentURLDone',
+            'getOneAttachmentsContentURL.fail': 'getOneAttachmentsContentURLFail',
+
+            'sendGETResponseToRequestbin.done': 'sendGETResponseToRequestbinDone',
+            'sendGETResponseToRequestbin.fail': 'sendGETResponseToRequestbinFail'
         },
 
         /////////////////
@@ -152,9 +198,12 @@
                 console.log(attachmentsArray);
                 var firstAttachmentInAttachmentsArray = attachmentsArray[0];
 
-// *****   GET ATTACHMENTS IN THERE    *********************************************
-                this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
+// // *****   GET ATTACHMENTS IN THERE    *********************************************
+//                 this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
 
+
+// *****   GET ATTACHMENT one content from Zendesk    *********************************************
+                this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
 
 
 
@@ -194,8 +243,13 @@
                 console.log(attachmentsArray);
                 var firstAttachmentInAttachmentsArray = attachmentsArray[0];
 
-// *****   GET ATTACHMENTS IN THERE    *********************************************
-                this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
+
+// // *****   GET ATTACHMENTS IN THERE    *********************************************
+//                 this.ajax('createTestFileInDropbox', bearer_token, firstAttachmentInAttachmentsArray); // API call to create test file in Dropbox
+
+
+// *****   GET ATTACHMENT one content from Zendesk    *********************************************
+                this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
 
 
 
@@ -213,24 +267,58 @@
           code = this.$('input#inputValueId').val(''); // Empties input field 
         },
 
-        createTestFileInDropboxDone: function() {
-            // Handle response from Dropbox [*.done]
-            services.notify('Files sent to Dropbox successfully', 'notice');
-            this.switchTo('filesSentSuccess', {
-                PDFcount: this.attachmentsArraySize
-            });
+        // createTestFileInDropboxDone: function() {
+        //     // Handle response from Dropbox [*.done]
+        //     services.notify('Files sent to Dropbox successfully', 'notice');
+        //     this.switchTo('filesSentSuccess', {
+        //         PDFcount: this.attachmentsArraySize
+        //     });
+        // },
+
+        // createTestFileInDropboxFail: function(data) {
+        //     // Handle response from Dropbox [*.fail]
+        //     services.notify('Failed sending files to Dropbox, please try again', 'error');
+        //     this.switchTo('filesSentFail', {
+        //         PDFcount: this.attachmentsArraySize
+        //     });
+        //         // Debugging logs
+        //         console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
+        //         console.log('Request to send files to Dropbox failed - that\'s all we know');
+        //         console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
+        // }
+        
+        // // From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143
+        // created: function(url) { // Transform *.contentURL() into data to send with upload request to Dropbox
+        //   console.log('App created');
+        //   var xhr = new XMLHttpRequest();
+        //   xhr.open('GET', url, true);
+        //   xhr.responseType = 'blob';
+     
+        //   xhr.onload = function(e) {
+        //     if (xhr.status == 200) {
+        //       var url = URL.createObjectURL( xhr.response );
+        //           console.log( url );
+        //       var file = xhr.response;
+        //       var fd = new FormData();
+        //       fd.append('data', file);
+        //       this.ajax('uploadFile', fd, 'test.pdf').done(function(response) {
+        //         console.dir(r);
+        //         console.log('File uploaded!');
+        //       });
+        //     }
+        //   }.bind(this);
+     
+        //   xhr.send();
+        // },
+
+        sendGETResponseToRequestbinDone: function(data) {
+            console.log(data);
+            services.notify('Success sending content to Requestb.in', 'notify');
         },
 
-        createTestFileInDropboxFail: function(data) {
-            // Handle response from Dropbox [*.fail]
-            services.notify('Failed sending files to Dropbox, please try again', 'error');
-            this.switchTo('filesSentFail', {
-                PDFcount: this.attachmentsArraySize
-            });
-                // Debugging logs
-                console.log('/// *******[DROPBOX APP ERROR - start]******* ///');
-                console.log('Request to send files to Dropbox failed - that\'s all we know');
-                console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
+        sendGETResponseToRequestbinFail: function(data) {
+            console.log(data);
+            services.notify('Failed sending request to Requestb.in', 'error');
         }
 
     };
