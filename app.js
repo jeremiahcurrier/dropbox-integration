@@ -35,7 +35,6 @@
           //LIFECYCLE events//
             'app.created': 'init',
             'comment.attachments.changed': 'init',
-            'ticket.submit.always': 'init',
           //DOM events//
             'click .upload': 'lookForBearerToken',
             'click .getCode': function(event){
@@ -120,7 +119,7 @@
             this.switchTo('loading');
             if (this.store('OAuth Bearer Token') === null) { // A value has NOT been set for the Bearer Token
                 // this.switchTo('loading');
-                services.notify('Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue', 'alert', 3500);
+                services.notify('<span style="font-size: 14px;">Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue</span>', 'alert', 4000);
                 this.switchTo('inputCode');
                 this.createLoginPopup(); // Display popup to click allow & copy paste auth code to input field
             } else { // There is a Bearer Token already in localStorage - so send test attachments immediately
