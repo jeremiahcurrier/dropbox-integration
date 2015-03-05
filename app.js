@@ -38,21 +38,21 @@
             //     };
             // },
 
-            // uploadFile: function (data, fileName) { // SEND REQUEST TO UPLOAD 1 PDF TO DROPBOX
-            //     var bearer_token = '{redacted}';
-            //     return {
-            //       url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/' + fileName + '?overwrite=false',
-            //       accepts: 'text/plain; charset=iso-8859-1',
-            //       headers: {
-            //         "Authorization": 'Bearer ' + bearer_token,
-            //         "Content-Type": "text/plain; charset=iso-8859-1"
-            //       },
-            //       type: 'PUT',
-            //       data: data,
-            //       processData: false,
-            //       contentType: false
-            //     };
-            // },
+            uploadFile: function (data, fileName) { // SEND REQUEST TO UPLOAD 1 PDF TO DROPBOX
+                var bearer_token = '{redacted}';
+                return {
+                  url: 'https://api-content.dropbox.com/1/files_put/auto/ZENDESK/' + fileName + '?overwrite=false',
+                  accepts: 'text/plain; charset=iso-8859-1',
+                  headers: {
+                    "Authorization": 'Bearer ' + bearer_token,
+                    "Content-Type": "text/plain; charset=iso-8859-1"
+                  },
+                  type: 'PUT',
+                  data: data,
+                  processData: false,
+                  contentType: false
+                };
+            },
 
             getOneAttachmentsContentURL: function(firstAttachmentInAttachmentsArray) {
                 return {
@@ -203,8 +203,8 @@
 
 
 // *****   GET ATTACHMENT one content from Zendesk    *********************************************
-                this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
-
+                // this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
+                console.log('used to make ajax request to getOneAttachmentsContentURL - no longer');
 
 
             }
@@ -249,7 +249,8 @@
 
 
 // *****   GET ATTACHMENT one content from Zendesk    *********************************************
-                this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
+                // this.ajax('getOneAttachmentsContentURL',firstAttachmentInAttachmentsArray); // GET attachment contents
+                console.log('used to make ajax request to getOneAttachmentsContentURL - no longer');
 
 
 
@@ -266,6 +267,31 @@
                 });
           code = this.$('input#inputValueId').val(''); // Empties input field 
         },
+
+
+        // From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143
+        created: function(url) { // Transform *.contentURL() into data to send with upload request to Dropbox
+          console.log('App created');
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.responseType = 'blob';
+     
+          xhr.onload = function(e) {
+            if (xhr.status == 200) {
+              var url = URL.createObjectURL( xhr.response );
+                  console.log( url );
+              var file = xhr.response;
+              var fd = new FormData();
+              fd.append('data', file);
+              this.ajax('uploadFile', fd, 'test.pdf').done(function(response) {
+                console.dir(r);
+                console.log('File uploaded!');
+              });
+            }
+          }.bind(this);
+     
+          xhr.send();
+        }
 
         // createTestFileInDropboxDone: function() {
         //     // Handle response from Dropbox [*.done]
@@ -286,40 +312,6 @@
         //         console.log('Request to send files to Dropbox failed - that\'s all we know');
         //         console.log('/// *******[DROPBOX APP ERROR - end]******* ///');
         // }
-        
-        // // From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143
-        // created: function(url) { // Transform *.contentURL() into data to send with upload request to Dropbox
-        //   console.log('App created');
-        //   var xhr = new XMLHttpRequest();
-        //   xhr.open('GET', url, true);
-        //   xhr.responseType = 'blob';
-     
-        //   xhr.onload = function(e) {
-        //     if (xhr.status == 200) {
-        //       var url = URL.createObjectURL( xhr.response );
-        //           console.log( url );
-        //       var file = xhr.response;
-        //       var fd = new FormData();
-        //       fd.append('data', file);
-        //       this.ajax('uploadFile', fd, 'test.pdf').done(function(response) {
-        //         console.dir(r);
-        //         console.log('File uploaded!');
-        //       });
-        //     }
-        //   }.bind(this);
-     
-        //   xhr.send();
-        // },
-
-        sendGETResponseToRequestbinDone: function(data) {
-            console.log(data);
-            services.notify('Success sending content to Requestb.in', 'notify');
-        },
-
-        sendGETResponseToRequestbinFail: function(data) {
-            console.log(data);
-            services.notify('Failed sending request to Requestb.in', 'error');
-        }
 
     };
 }(this));
