@@ -14,6 +14,7 @@ h3 {
   font-size: 14px;
   padding: 6px;
   margin: 0 0 -6px 0;
+  color: #3d464d;
 }
 
 .form-control {
@@ -22,10 +23,11 @@ h3 {
   margin: 0 0 -6px 0;
   font-size: 14px;
   padding: 6px;
+  color: #3d464d;
 }
 
 .success {
-  color: #78a300;
+  color: #3d464d;
 }
 
 /*http://stackoverflow.com/questions/7381446/center-html-input-text-field-placeholder*/
