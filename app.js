@@ -47,8 +47,8 @@
             },
             'click .start_over': 'init',
           //AJAX events//
-            'uploadFile.done': 'uploadFileDone',
-            'uploadFile.fail': 'uploadFileFail'
+            'uploadFile.always': 'uploadFileDone'
+            // 'uploadFile.fail': 'uploadFileFail'
         },
         init: function() {
             this.switchTo('loading');
