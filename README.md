@@ -6,14 +6,14 @@ This app sends attachments from Zendesk tickets to Dropbox
 
 * Get all attachments **DONE**
 * Store Bearer Token in localStorage **DONE**
-* Make an API call to Dropbox using the Bearer Token to create a test file **DONE**
-* Make an API call to Dropbox using the Bearer Token to upload one of the ticket attachments **DONE**
+* Create a test file **DONE**
+* Create a file using one of the Zendesk ticket PDFs **DONE**
 * Store all attachments in localStorage (Not clear yet if this is worth doing)
 
-##### 1. Already signed in to Dropbox
+##### 1. When signed in to Dropbox
 
 ![](http://g.recordit.co/1sjJw3F2g1.gif)
 
-##### 1. Not yet signed in to Dropbox
+##### 2. When not signed in to Dropbox
 
 ![](http://g.recordit.co/sxttJsEq5o.gif)
