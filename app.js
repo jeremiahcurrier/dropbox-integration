@@ -47,8 +47,6 @@
             },
             'click .start_over': 'init',
           //AJAX events//
-            'getOneAttachmentsContentURL.done': 'getOneAttachmentsContentURLDone',
-            'getOneAttachmentsContentURL.fail': 'getOneAttachmentsContentURLFail',
             'uploadFile.done': 'uploadFileDone',
             'uploadFile.fail': 'uploadFileFail'
         },
