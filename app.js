@@ -58,42 +58,38 @@
 
         getAttachments: function() {
             console.log('getAttachments');
-
             this.switchTo('loading');
+
             var attachmentsArray            = [],
                 ticket                      = this.ticket(),
                 comment                     = this.comment(),
-                currentCommentAttachments   = comment.attachments(); // Attachments - CURRENT COMMENT
+                currentCommentAttachments   = comment.attachments();
 
+        // Get all attachments on CURRENT COMMENT & filter to only PDFs
             if (currentCommentAttachments.length > 0) {
-                for (var i = 0; currentCommentAttachments.length > i; i++) {
-                    if (currentCommentAttachments[i].contentType() === 'application/pdf') {
-                        // console.log('PDF - ATTACHMENT');
-                        attachmentsArray.push(currentCommentAttachments[i].contentUrl());
-                    }
+              for (var i = 0; currentCommentAttachments.length > i; i++) {
+                if (currentCommentAttachments[i].contentType() === 'application/pdf') {
+                    attachmentsArray.push(currentCommentAttachments[i].contentUrl());
                 }
+              }
             }
 
-        // Attachments - ALL COMMENTS EXCEPT CURRENT COMMENT
+        // Get all attachments on the every single comment EXCEPT CURRENT COMMENT & filter to only PDFs
             ticket.comments().forEach(function(comment) {
                 var firstImageAttachment    = comment.imageAttachments().get(0),
                     firstNonImageAttachment = comment.nonImageAttachments()[0];
 
-                    if (firstImageAttachment !== undefined ) {
-                        // console.log(firstImageAttachment);
-                        if (firstImageAttachment.contentType() === 'application/pdf') {
-                            // console.log('PDF - ATTACHMENT');
-                            attachmentsArray.push(firstImageAttachment.contentUrl());
-                        }
-                    }
+                if (firstImageAttachment !== undefined ) {
+                  if (firstImageAttachment.contentType() === 'application/pdf') {
+                    attachmentsArray.push(firstImageAttachment.contentUrl());
+                  }
+                }
 
-                    if (firstNonImageAttachment !== undefined ) {
-                        // console.log(firstNonImageAttachment);
-                        if (firstNonImageAttachment.contentType() === 'application/pdf') {
-                            // console.log('PDF - ATTACHMENT');
-                            attachmentsArray.push(firstNonImageAttachment.contentUrl());
-                        }
-                    }
+                if (firstNonImageAttachment !== undefined ) {
+                  if (firstNonImageAttachment.contentType() === 'application/pdf') {
+                    attachmentsArray.push(firstNonImageAttachment.contentUrl());
+                  }
+                }
             });
 
             if (attachmentsArray.length === 0) {
