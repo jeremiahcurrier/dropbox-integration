@@ -111,29 +111,27 @@
 
             this.switchTo('loading');
 
-            if (this.store('OAuth Bearer Token') === null) { // Not signed in to Dropbox yet
+            if (this.store('OAuth Bearer Token') === null) { // Not signed in to Dropbox
                 console.log('lookForBearerToken IF');
                 services.notify('<span style="font-size: 14px;">Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue</span>', 'alert', 4000);
                 this.switchTo('inputCode');
-                this.createLoginPopup(); // Display OAuth popup to click allow & copy paste auth code to input field
-            } else { // There is a Bearer Token already in localStorage - so send test attachments immediately
+                this.createLoginPopup(); // Display OAuth 'allow' popup
+            } else { // Already signed in to Dropbox - send PDFs now
                 console.log('lookForBearerToken ELSE');
-                var bearer_token                        = this.store('OAuth Bearer Token'), // Get Bearer token from localStorage
-                    attachmentsArray                    = this.attachmentsArray, // Get attachmentsArray from this
+                var bearer_token                        = this.store('OAuth Bearer Token'),
+                    attachmentsArray                    = this.attachmentsArray,
                     // firstAttachmentInAttachmentsArray   = attachmentsArray[0],
                     // url                                 = firstAttachmentInAttachmentsArray,
                     attachmentsArraySize                = this.attachmentsArraySize;
 
                 services.notify('Sending files to Dropbox, just a moment', 'notice');
 
-                // var attachmentsArray = ['one', 'two', 'three'];
                 // loop through each item in attachmentsArray and send each *.contentUrl() to this.created as 'url'
                 for (var i = 0; attachmentsArray.length > i; i++) {
                     var url = attachmentsArray[i];
                     console.log(url);
                     this.created(url, bearer_token, attachmentsArraySize);
                 }
-                // this.created(url, bearer_token, attachmentsArraySize);
             }
         },
 
@@ -182,8 +180,8 @@
           code = this.$('input#inputValueId').val(''); // Empties input field 
         },
 
-// From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143
-        created: function(url, bearer_token, attachmentsArraySize) {
+        created: function(url, bearer_token, attachmentsArraySize) { 
+        // ( From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143 )
         // Transform *.contentURL() into data to send with upload request to Dropbox
             
             // debugging logs start
@@ -212,7 +210,6 @@
         },
 
         uploadFileDone: function(data) {
-        // Handle response from Dropbox [*.done]
             services.notify('Files sent to Dropbox successfully', 'notice');
             this.switchTo('filesSentSuccess', {
                 PDFcount: this.attachmentsArraySize
@@ -220,7 +217,6 @@
         },
 
         uploadFileFail: function(data) {
-        // Handle response from Dropbox [*.fail]
             services.notify('Failed sending files to Dropbox, please try again', 'error');
             this.switchTo('filesSentFail', {
                 PDFcount: this.attachmentsArraySize
