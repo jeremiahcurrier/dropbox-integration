@@ -124,11 +124,20 @@
                 console.log('lookForBearerToken ELSE');
                 var bearer_token                        = this.store('OAuth Bearer Token'), // Get Bearer token from localStorage
                     attachmentsArray                    = this.attachmentsArray, // Get attachmentsArray from this
-                    firstAttachmentInAttachmentsArray   = attachmentsArray[0],
-                    url                                 = firstAttachmentInAttachmentsArray,
+                    // firstAttachmentInAttachmentsArray   = attachmentsArray[0],
+                    // url                                 = firstAttachmentInAttachmentsArray,
                     attachmentsArraySize                = this.attachmentsArraySize;
+
                 services.notify('Sending files to Dropbox, just a moment', 'notice');
-                this.created(url, bearer_token, attachmentsArraySize);
+
+                // var attachmentsArray = ['one', 'two', 'three'];
+                // loop through each item in attachmentsArray and send each *.contentUrl() to this.created as 'url'
+                for (var i = 0; attachmentsArray.length > i; i++) {
+                    var url = attachmentsArray[i];
+                    console.log(url);
+                    this.created(url, bearer_token, attachmentsArraySize);
+                }
+                // this.created(url, bearer_token, attachmentsArraySize);
             }
         },
 
@@ -155,13 +164,18 @@
                 var bearer_token = this.token;
                 this.store('OAuth Bearer Token', bearer_token); // Store Bearer token in localStorage
                 var attachmentsArray                    = this.attachmentsArray, // Get attachmentsArray from this
-                    firstAttachmentInAttachmentsArray   = attachmentsArray[0],
-                    url                                 = firstAttachmentInAttachmentsArray,
+                    // firstAttachmentInAttachmentsArray   = attachmentsArray[0],
+                    // url                                 = firstAttachmentInAttachmentsArray,
                     attachmentsArraySize                = this.attachmentsArraySize;
 
                 services.notify('Sending files to Dropbox, just a moment', 'notice');
-                this.created(url, bearer_token, attachmentsArraySize);
 
+                // loop through each item in attachmentsArray and send each *.contentUrl() to this.created as 'url'
+                for (var i = 0; attachmentsArray.length > i; i++) {
+                    var url = attachmentsArray[i];
+                    console.log(url);
+                    this.created(url, bearer_token, attachmentsArraySize);
+                }
             })
             .fail(function(data){ // Failed to get Bearer token from Dropbox
                 this.switchTo('authFail');
