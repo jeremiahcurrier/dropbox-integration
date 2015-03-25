@@ -175,35 +175,30 @@
 // From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143
         created: function(url, bearer_token, attachmentsArraySize) {
         // Transform *.contentURL() into data to send with upload request to Dropbox
-          var xhr = new XMLHttpRequest();
-          
-          // ############################## debug logging start ##############################
-          console.log('created');
-          console.log('####### url:');
-          console.log(url);
-          // ############################## debug logging stop ##############################
+            
+            // debugging logs start
+            console.log('url:');
+            console.log(url);
+            // debugging logs end
 
-          xhr.open('GET', url, true);
-          xhr.responseType = 'blob';
-     
-          xhr.onload = function(e) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            xhr.onload = function(e) {
+                if (xhr.status == 200) {
+                    var url = URL.createObjectURL( xhr.response );
+                    console.log(url);
+                    var file    = xhr.response,
+                        fd      = new FormData();
+                    fd.append('data', file);
+                    this.ajax('uploadFile', fd, 'test.pdf', bearer_token).done(function(response) {
+                        console.log('File uploaded!');
+                  });
+                }
+            }.bind(this);
 
-            if (xhr.status == 200) {
-              var url = URL.createObjectURL( xhr.response );
-                  console.log( url );
-              var file = xhr.response;
-              var fd = new FormData();
-              fd.append('data', file);
-              this.ajax('uploadFile', fd, 'test.pdf', bearer_token).done(function(response) {
-                // console.dir(r);
-                console.log('File uploaded!');
-              });
-            }
-          }.bind(this);
-     
-          xhr.send();
-
-          this.switchTo('loading');
+            xhr.send();
+            this.switchTo('loading');
         },
 
         uploadFileDone: function(data) {
