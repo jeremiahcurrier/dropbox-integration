@@ -8,6 +8,19 @@
     "name": {
       "value": "iFrame sample app",
       "title": "app name"
+    },
+    "parameters": {
+      "overwrite": {
+        "label": {
+          "value": "overwrite",
+          "title": "This value, either true (default) or false, determines whether an existing file will be overwritten by this upload. If true, any existing file will be overwritten. If false, the other parameters determine whether a conflict occurs and how that conflict is resolved."
+        },
+        "helpText": {
+          "value": "This value, either true (default) or false, determines whether an existing file will be overwritten by this upload. If true, any existing file will be overwritten. If false, the other parameters determine whether a conflict occurs and how that conflict is resolved.",
+          "title": "This value, either true (default) or false, determines whether an existing file will be overwritten by this upload. If true, any existing file will be overwritten. If false, the other parameters determine whether a conflict occurs and how that conflict is resolved."
+        }
+      }
     }
   }
 }
+

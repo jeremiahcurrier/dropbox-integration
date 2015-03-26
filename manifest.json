@@ -14,7 +14,7 @@
     {
       "name": "overwrite",
       "type": "checkbox",
-      "required": true
+      "default": true
     }
   ]
 }
