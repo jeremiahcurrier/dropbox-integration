@@ -20,4 +20,4 @@ This app sends attachments from Zendesk tickets to Dropbox
 
 ##### Demo
 
-![](http://g.recordit.co/JaHuunZKSZ.gif)
+![](http://g.recordit.co/q8vHtW2rRG.gif)

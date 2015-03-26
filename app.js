@@ -83,7 +83,6 @@
         },
 
         getAttachments: function(complete) {
-            console.log('getAttachments');
             this.switchTo('loading');
 
             if (complete === true) {
@@ -97,9 +96,9 @@
                 if (currentCommentAttachments.length > 0) {
                   for (var i = 0; currentCommentAttachments.length > i; i++) {   
                     if (currentCommentAttachments[i].contentType() === 'application/pdf') {
-                        // Testing start
-                        console.log(currentCommentAttachments[i].contentUrl());
-                        // Testing end
+                        // // Testing start
+                        // console.log(currentCommentAttachments[i].contentUrl());
+                        // // Testing end
                         attachmentsArray.push(currentCommentAttachments[i].contentUrl());
                     }
                   }
@@ -136,22 +135,22 @@
                 this.attachmentsArray = attachmentsArray;
                 this.attachmentsArraySize = attachmentsArray.length;
             } else {
-                console.log('keep going');
+                console.log('Current comment attachments upload in progress');
             }
         },
 
         lookForBearerToken: function () {
-            console.log('lookForBearerToken');
+            // console.log('lookForBearerToken');
 
             this.switchTo('loading');
 
             if (this.store('OAuth Bearer Token') === null) { // Not signed in to Dropbox
-                console.log('lookForBearerToken IF');
+                // console.log('lookForBearerToken IF');
                 services.notify('<span style="font-size: 14px;">Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue</span>', 'alert', 4000);
                 this.switchTo('inputCode');
                 this.createLoginPopup(); // Display OAuth 'allow' popup
             } else { // Already signed in to Dropbox - send PDFs now
-                console.log('lookForBearerToken ELSE');
+                // console.log('lookForBearerToken ELSE');
                 var bearer_token                        = this.store('OAuth Bearer Token'),
                     attachmentsArray                    = this.attachmentsArray,
                     // firstAttachmentInAttachmentsArray   = attachmentsArray[0],
@@ -163,7 +162,7 @@
                 // loop through each item in attachmentsArray and send each *.contentUrl() to this.created as 'url'
                 for (var i = 0; attachmentsArray.length > i; i++) {
                     var url = attachmentsArray[i];
-                    console.log(url);
+                    // console.log(url);
                     this.created(url, bearer_token, attachmentsArraySize);
                 }
             }
@@ -179,7 +178,7 @@
         },
 
         processInputValue: function() {
-          console.log('processInputValue');
+          // console.log('processInputValue');
           services.notify('Signing in to Dropbox, please wait', 'notice');
           var code = this.$('input#inputValueId').val(); // Variable set to value entered into input field
           this.switchTo('loading');
@@ -249,16 +248,23 @@
         },
 
         uploadFileDone: function(data) {
-            services.notify('Files sent to Dropbox successfully', 'notice');
-            this.switchTo('filesSentSuccess', {
-                PDFcount: this.attachmentsArraySize
-            });
+            this.attachmentsArraySize = this.attachmentsArraySize-1;
+            
+            var attachmentsArraySize        = this.attachmentsArraySize,
+                attachmentsArraySizeAnchor  = this.attachmentsArray.length;
+
+            if (attachmentsArraySize === 0) {
+                services.notify('Files sent to Dropbox successfully', 'notice');
+                this.switchTo('filesSentSuccess', {
+                    PDFcount: this.attachmentsArray.length
+                });
+            }
         },
 
         uploadFileFail: function(data) {
-            services.notify('Failed sending files to Dropbox, please try again', 'error');
+            services.notify('Error sending files to Dropbox, please try again', 'error', 8000);
             this.switchTo('filesSentFail', {
-                PDFcount: this.attachmentsArraySize
+                PDFcount: this.attachmentsArray.length
             });
             console.error('Request to send files to Dropbox failed');
         }
