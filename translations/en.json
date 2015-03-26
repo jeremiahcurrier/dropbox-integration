@@ -19,6 +19,16 @@
           "value": "This value, either true (default) or false, determines whether an existing file will be overwritten by this upload. If true, any existing file will be overwritten. If false, the other parameters determine whether a conflict occurs and how that conflict is resolved.",
           "title": "This value, either true (default) or false, determines whether an existing file will be overwritten by this upload. If true, any existing file will be overwritten. If false, the other parameters determine whether a conflict occurs and how that conflict is resolved."
         }
+      },
+      "filePath": {
+        "label": {
+          "value": "filePath",
+          "title": "The path you want to save PDFs in Dropbox. Default is 'ZENDESK/pdf' - if you use the default please ensure there is already a root folder titled, 'ZENDESK', with a subfolder titled, 'pdf'."
+        },
+        "helpText": {
+          "value": "The path you want to save PDFs in Dropbox. Default is 'ZENDESK/pdf' - if you use the default please ensure there is already a root folder titled, 'ZENDESK', with a subfolder titled, 'pdf'.",
+          "title": "The path you want to save PDFs in Dropbox. Default is 'ZENDESK/pdf' - if you use the default please ensure there is already a root folder titled, 'ZENDESK', with a subfolder titled, 'pdf'."
+        }
       }
     }
   }

@@ -29,8 +29,10 @@
                     overwrite = 'false';
                 }
 
+                var filePath = this.setting('filePath');
+
                 return {
-                  url: 'https://api-content.dropbox.com/1/files_put/auto/zendesk/ZENDESK/pdf/' + fileName + '?overwrite=' + overwrite, // modify this URL to the correct path per dropbox user - could be different for each one
+                  url: 'https://api-content.dropbox.com/1/files_put/auto/' + filePath + '/' + fileName + '?overwrite=' + overwrite, // modify this URL to the correct path per dropbox user - could be different for each one
                   accepts: 'text/plain; charset=iso-8859-1',
                   headers: {
                     "Authorization": 'Bearer ' + bearer_token,

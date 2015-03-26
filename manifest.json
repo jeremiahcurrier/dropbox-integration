@@ -15,6 +15,12 @@
       "name": "overwrite",
       "type": "checkbox",
       "default": true
+    },
+    {
+      "name": "filePath",
+      "type": "text",
+      "required": true,
+      "default": "ZENDESK/pdf"
     }
   ]
 }
