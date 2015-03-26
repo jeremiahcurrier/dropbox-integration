@@ -38,8 +38,8 @@
 
         events: {
           //LIFECYCLE events//
-            'app.created': 'getAttachments',
-            'comment.attachments.changed': 'getAttachments',
+            'app.created': 'reload',
+            'comment.attachments.changed': 'reload',
           //DOM events//
             'click .upload': 'lookForBearerToken',
             'click .getCode': function(event){
@@ -56,54 +56,88 @@
             // 'uploadFile.fail': 'uploadFileFail'
         },
 
-        getAttachments: function() {
+        reload: function(e) {
+          var interval = setInterval(function() {
+            var attachments = this.comment().attachments();
+            // if they all have URLs clearTimeout and call this.load()
+            var urls = _.map(attachments, function(attachment) {
+              var url = attachment.contentUrl();
+              var bool;
+              if(url) {
+                bool = true;
+              } else {
+                bool = false;
+              }
+              return bool;
+            });
+
+            var allLoaded = !_.contains(urls, false);
+            var oneLoaded = _.contains(urls, true);
+            if(allLoaded) { // all attachments loaded
+              clearInterval(interval);
+              this.getAttachments(true);
+            } else {
+              this.getAttachments(false);
+            }
+          }.bind(this), 100);
+        },
+
+        getAttachments: function(complete) {
             console.log('getAttachments');
             this.switchTo('loading');
 
-            var attachmentsArray            = [],
-                ticket                      = this.ticket(),
-                comment                     = this.comment(),
-                currentCommentAttachments   = comment.attachments();
+            if (complete === true) {
 
-        // Get all attachments on CURRENT COMMENT & filter to only PDFs
-            if (currentCommentAttachments.length > 0) {
-              for (var i = 0; currentCommentAttachments.length > i; i++) {
-                if (currentCommentAttachments[i].contentType() === 'application/pdf') {
-                    attachmentsArray.push(currentCommentAttachments[i].contentUrl());
-                }
-              }
-            }
+                var attachmentsArray            = [],
+                    ticket                      = this.ticket(),
+                    comment                     = this.comment(),
+                    currentCommentAttachments   = comment.attachments();
 
-        // Get all attachments on the every single comment EXCEPT CURRENT COMMENT & filter to only PDFs
-            ticket.comments().forEach(function(comment) {
-                var firstImageAttachment    = comment.imageAttachments().get(0),
-                    firstNonImageAttachment = comment.nonImageAttachments()[0];
-
-                if (firstImageAttachment !== undefined ) {
-                  if (firstImageAttachment.contentType() === 'application/pdf') {
-                    attachmentsArray.push(firstImageAttachment.contentUrl());
+            // Get all attachments on CURRENT COMMENT & filter to only PDFs
+                if (currentCommentAttachments.length > 0) {
+                  for (var i = 0; currentCommentAttachments.length > i; i++) {   
+                    if (currentCommentAttachments[i].contentType() === 'application/pdf') {
+                        // Testing start
+                        console.log(currentCommentAttachments[i].contentUrl());
+                        // Testing end
+                        attachmentsArray.push(currentCommentAttachments[i].contentUrl());
+                    }
                   }
                 }
 
-                if (firstNonImageAttachment !== undefined ) {
-                  if (firstNonImageAttachment.contentType() === 'application/pdf') {
-                    attachmentsArray.push(firstNonImageAttachment.contentUrl());
-                  }
-                }
-            });
+            // Get all attachments on the every single comment EXCEPT CURRENT COMMENT & filter to only PDFs
+                ticket.comments().forEach(function(comment) {
+                    var firstImageAttachment    = comment.imageAttachments().get(0),
+                        firstNonImageAttachment = comment.nonImageAttachments()[0];
 
-            if (attachmentsArray.length === 0) {
-                this.switchTo('noAttachments', {
-                    PDFcount: attachmentsArray.length
+                    if (firstImageAttachment !== undefined ) {
+                      if (firstImageAttachment.contentType() === 'application/pdf') {
+                        attachmentsArray.push(firstImageAttachment.contentUrl());
+                      }
+                    }
+
+                    if (firstNonImageAttachment !== undefined ) {
+                      if (firstNonImageAttachment.contentType() === 'application/pdf') {
+                        attachmentsArray.push(firstNonImageAttachment.contentUrl());
+                      }
+                    }
                 });
+                // TODO handle the 'complete' variable
+                if (attachmentsArray.length === 0) {
+                    this.switchTo('noAttachments', {
+                        PDFcount: attachmentsArray.length
+                    });
+                } else {
+                    this.switchTo('sendFiles', {
+                        PDFcount: attachmentsArray.length
+                    });
+                }
+
+                this.attachmentsArray = attachmentsArray;
+                this.attachmentsArraySize = attachmentsArray.length;
             } else {
-                this.switchTo('sendFiles', {
-                    PDFcount: attachmentsArray.length
-                });
+                console.log('keep going');
             }
-
-            this.attachmentsArray = attachmentsArray;
-            this.attachmentsArraySize = attachmentsArray.length;
         },
 
         lookForBearerToken: function () {
@@ -192,6 +226,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
             xhr.responseType = 'blob';
+
             xhr.onload = function(e) {
                 if (xhr.status == 200) {
                     var url = URL.createObjectURL( xhr.response );
@@ -204,6 +239,10 @@
                   });
                 }
             }.bind(this);
+            
+            xhr.onerror = function () { 
+                console.error(xhr, xhr.status); 
+            };
 
             xhr.send();
             this.switchTo('loading');
