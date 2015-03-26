@@ -92,35 +92,49 @@
                     comment                     = this.comment(),
                     currentCommentAttachments   = comment.attachments();
 
-            // Get all attachments on CURRENT COMMENT & filter to only PDFs
+                // CURRENT comments PDFs - start
                 if (currentCommentAttachments.length > 0) {
                   for (var i = 0; currentCommentAttachments.length > i; i++) {   
                     if (currentCommentAttachments[i].contentType() === 'application/pdf') {
-                        // // Testing start
-                        // console.log(currentCommentAttachments[i].contentUrl());
-                        // // Testing end
                         attachmentsArray.push(currentCommentAttachments[i].contentUrl());
                     }
                   }
                 }
+                // CURRENT comments PDFs - end
 
-            // Get all attachments on the every single comment EXCEPT CURRENT COMMENT & filter to only PDFs
-                ticket.comments().forEach(function(comment) {
-                    var firstImageAttachment    = comment.imageAttachments().get(0),
-                        firstNonImageAttachment = comment.nonImageAttachments()[0];
+                // PREVIOUS comments PDFs - start
+                ticket.comments().forEach(function(comment) { 
 
-                    if (firstImageAttachment !== undefined ) {
-                      if (firstImageAttachment.contentType() === 'application/pdf') {
-                        attachmentsArray.push(firstImageAttachment.contentUrl());
-                      }
-                    }
+                    // var images = comment.imageAttachments(); // Not using Images yet
+                    // if (images.length !== 0) {
+                    //     for (var i = 0; images.length > i; i++) {
+                    //         var image = comment.imageAttachments().get(i);
+                    //         console.log('$$$$$$$$$$$$$$      images:');
+                    //         console.log(image);
+                    //         console.log('image.contentUrl():');
+                    //         console.log(image.contentUrl());
 
-                    if (firstNonImageAttachment !== undefined ) {
-                      if (firstNonImageAttachment.contentType() === 'application/pdf') {
-                        attachmentsArray.push(firstNonImageAttachment.contentUrl());
-                      }
+                    //         if (image.contentType() === 'application/pdf') {
+                    //             attachmentsArray.push(image.contentUrl());
+                    //         }
+
+                    //     }
+                    // }
+
+                    var nonImages = comment.nonImageAttachments(); // Non-Image Attachments
+                    if (nonImages.length !== 0) {
+                        for (var i = 0; nonImages.length > i; i++) {
+                            var nonImage = comment.nonImageAttachments()[i];
+
+                            if (nonImage.contentType() === 'application/pdf') {
+                                attachmentsArray.push(nonImage.contentUrl());
+                            }
+
+                        }
                     }
                 });
+                // PREVIOUS comments PDFs - end
+
                 // TODO handle the 'complete' variable
                 if (attachmentsArray.length === 0) {
                     this.switchTo('noAttachments', {
@@ -135,7 +149,7 @@
                 this.attachmentsArray = attachmentsArray;
                 this.attachmentsArraySize = attachmentsArray.length;
             } else {
-                console.log('Current comment attachments upload in progress');
+                console.log('[DROPBOX INTEGRATION] Current comment attachments upload in progress');
             }
         },
 
@@ -146,7 +160,7 @@
 
             if (this.store('OAuth Bearer Token') === null) { // Not signed in to Dropbox
                 // console.log('lookForBearerToken IF');
-                services.notify('<span style="font-size: 14px;">Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue</span>', 'alert', 4000);
+                services.notify('<span style="font-size: 15px;">Please click <strong>allow</strong> in the popup then <strong>copy the code into the app</strong> to continue</span>', 'alert', 12000);
                 this.switchTo('inputCode');
                 this.createLoginPopup(); // Display OAuth 'allow' popup
             } else { // Already signed in to Dropbox - send PDFs now
@@ -207,7 +221,7 @@
             .fail(function(data){ // Failed to get Bearer token from Dropbox
                 this.switchTo('authFail');
                 services.notify('Problem signing in to Dropbox', 'error');
-                console.error('OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
+                console.error('[DROPBOX INTEGRATION] OAuth request failed - could not get Bearer Token. Dropbox response: HTTP ' + data.status + ' ' + data.statusText);
             });
 
           code = this.$('input#inputValueId').val(''); // Empties input field 
@@ -217,10 +231,10 @@
         // ( From @jstjoe - https://gist.github.com/jstjoe/fe4f2ebd9e5c3c562143 )
         // Transform *.contentURL() into data to send with upload request to Dropbox
             
-            // debugging logs start
-            console.log('url:');
-            console.log(url);
-            // debugging logs end
+            // // debugging logs start
+            // console.log('url:');
+            // console.log(url);
+            // // debugging logs end
 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
@@ -229,12 +243,13 @@
             xhr.onload = function(e) {
                 if (xhr.status == 200) {
                     var url = URL.createObjectURL( xhr.response );
-                    console.log(url);
+                    // console.log('[DROPBOX INTEGRATION] url:');
+                    // console.log(url);
                     var file    = xhr.response,
                         fd      = new FormData();
                     fd.append('data', file);
                     this.ajax('uploadFile', fd, 'test.pdf', bearer_token).done(function(response) {
-                        console.log('File uploaded!');
+                        console.log('[DROPBOX INTEGRATION] File uploaded!');
                   });
                 }
             }.bind(this);
@@ -258,6 +273,7 @@
                 this.switchTo('filesSentSuccess', {
                     PDFcount: this.attachmentsArray.length
                 });
+                console.log('[DROPBOX INTEGRATION] ~' + this.attachmentsArray.length + '~ PDF(s) uploaded!');
             }
         },
 
@@ -266,7 +282,7 @@
             this.switchTo('filesSentFail', {
                 PDFcount: this.attachmentsArray.length
             });
-            console.error('Request to send files to Dropbox failed');
+            console.error('[DROPBOX INTEGRATION] Request to send files to Dropbox failed');
         }
     };
 }(this));
