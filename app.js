@@ -20,9 +20,17 @@
             },
     
             uploadFile: function (data, fileName, bearer_token) { // SEND REQUEST TO UPLOAD 1 PDF TO DROPBOX
-                // var bearer_token = '{redacted}';
+
+                var overwrite = this.setting('overwrite');
+
+                if (this.setting('overwrite') === true) {
+                    overwrite = 'true';
+                } else {
+                    overwrite = 'false';
+                }
+
                 return {
-                  url: 'https://api-content.dropbox.com/1/files_put/auto/zendesk/ZENDESK/pdf/' + fileName + '?overwrite=false', // modify this URL to the correct path per dropbox user - could be different for each one
+                  url: 'https://api-content.dropbox.com/1/files_put/auto/zendesk/ZENDESK/pdf/' + fileName + '?overwrite=' + overwrite, // modify this URL to the correct path per dropbox user - could be different for each one
                   accepts: 'text/plain; charset=iso-8859-1',
                   headers: {
                     "Authorization": 'Bearer ' + bearer_token,
@@ -57,29 +65,33 @@
         },
 
         reload: function(e) {
-          var interval = setInterval(function() {
-            var attachments = this.comment().attachments();
-            // if they all have URLs clearTimeout and call this.load()
-            var urls = _.map(attachments, function(attachment) {
-              var url = attachment.contentUrl();
-              var bool;
-              if(url) {
-                bool = true;
-              } else {
-                bool = false;
-              }
-              return bool;
-            });
 
-            var allLoaded = !_.contains(urls, false);
-            var oneLoaded = _.contains(urls, true);
-            if(allLoaded) { // all attachments loaded
-              clearInterval(interval);
-              this.getAttachments(true);
-            } else {
-              this.getAttachments(false);
-            }
-          }.bind(this), 100);
+            var interval = setInterval(function() {
+                var attachments = this.comment().attachments();
+                // if they all have URLs clearTimeout and call this.load()
+                var urls = _.map(attachments, function(attachment) {
+                    var url = attachment.contentUrl();
+                    var bool;
+
+                    if(url) {
+                        bool = true;
+                    } else {
+                        bool = false;
+                    }
+
+                    return bool;
+                });
+
+                var allLoaded = !_.contains(urls, false),
+                    oneLoaded = _.contains(urls, true);
+
+                if(allLoaded) { // all attachments loaded
+                    clearInterval(interval);
+                    this.getAttachments(true);
+                } else {
+                    this.getAttachments(false);
+                }
+            }.bind(this), 100);
         },
 
         getAttachments: function(complete) {
